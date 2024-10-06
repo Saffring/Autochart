@@ -1,6 +1,6 @@
 import React from 'react';
-import AssessmentChart from '../../components/AssessmentChart';
+import AssessmentContent from '@/components/AssessmentContent';
 
 export default function AssessmentPage() {
-  return <AssessmentChart />;
+  return <AssessmentContent />;
 }

@@ -2,23 +2,28 @@
 
 import React from 'react';
 import { Input } from './ui/input';
-import { AssessmentData } from './useAssessmentData';
+import { AssessmentData } from '@/hooks/useAssessmentData';
 
 interface AssessmentTableProps {
   assessmentData: AssessmentData[];
-  historicalDates: string[];
+  updateAssessmentValue: (index: number, newValue: string) => void;
+  saveAssessmentData: () => Promise<void>;
   selectedRow: number | null;
-  onRowSelect: (index: number) => void;
-  onValueChange: (index: number, newValue: string) => void;
+  setSelectedRow: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 export const AssessmentTable: React.FC<AssessmentTableProps> = ({
   assessmentData,
-  historicalDates,
+  updateAssessmentValue,
+  saveAssessmentData,
   selectedRow,
-  onRowSelect,
-  onValueChange,
+  setSelectedRow,
 }) => {
+  const handleSave = async () => {
+    await saveAssessmentData();
+    // You might want to add some feedback to the user here, like a toast notification
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -30,11 +35,9 @@ export const AssessmentTable: React.FC<AssessmentTableProps> = ({
             <th scope="col" className="sticky top-0 left-48 z-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 w-48">
               Finding
             </th>
-            {historicalDates.map((date, index) => (
-              <th key={index} scope="col" className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 w-48">
-                {date}
-              </th>
-            ))}
+            <th scope="col" className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 w-48">
+              Last Updated
+            </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -42,7 +45,7 @@ export const AssessmentTable: React.FC<AssessmentTableProps> = ({
             <tr 
               key={index}
               className={`hover:bg-gray-50 ${selectedRow === index ? 'bg-blue-50' : ''}`}
-              onClick={() => onRowSelect(index)}
+              onClick={() => setSelectedRow(index)}
             >
               <td className="sticky left-0 z-10 px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-white w-48">
                 {row.assessment}
@@ -51,19 +54,25 @@ export const AssessmentTable: React.FC<AssessmentTableProps> = ({
                 <Input 
                   type="text" 
                   value={row.value} 
-                  onChange={(e) => onValueChange(index, e.target.value)}
+                  onChange={(e) => updateAssessmentValue(index, e.target.value)}
                   className="w-full" 
                 />
               </td>
-              {row.history.map((value, historyIndex) => (
-                <td key={historyIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-48">
-                  {value}
-                </td>
-              ))}
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-48">
+                {new Date(row.date).toLocaleString()}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <div className="mt-4">
+        <button
+          onClick={handleSave}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        >
+          Save Changes
+        </button>
+      </div>
     </div>
   );
 };

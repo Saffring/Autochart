@@ -5,6 +5,7 @@ import { Patient } from 'fhir/r4';
 export const usePatientData = () => {
   const [patientData, setPatientData] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const fetchAttemptedRef = useRef(false);
 
@@ -13,10 +14,13 @@ export const usePatientData = () => {
     fetchAttemptedRef.current = true;
 
     setLoading(true);
+    setError(null);
     try {
       const accessToken = localStorage.getItem('access_token');
       const patientId = localStorage.getItem('patient');
       const issuer = localStorage.getItem('issuer');
+
+      console.log('Fetching patient data with:', { accessToken: !!accessToken, patientId, issuer });
 
       if (!accessToken || !patientId || !issuer) {
         throw new Error('Missing required data for fetching patient information');
@@ -29,11 +33,18 @@ export const usePatientData = () => {
         },
       });
 
+      console.log('Patient data response:', response.data);
+
+      if (!response.data || Object.keys(response.data).length === 0) {
+        throw new Error('Received empty patient data from the server');
+      }
+
       setPatientData(response.data);
       setShowBanner(localStorage.getItem("need_patient_banner") === "true");
     } catch (error) {
       console.error('Error fetching patient data:', error);
-      // Optionally, you could set an error state here to display to the user
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+      setPatientData(null);
     } finally {
       setLoading(false);
     }
@@ -43,5 +54,5 @@ export const usePatientData = () => {
     fetchPatientData();
   }, [fetchPatientData]);
 
-  return { patientData, loading, showBanner };
+  return { patientData, loading, error, showBanner };
 };
