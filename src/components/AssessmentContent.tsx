@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, KeyboardEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePatientData } from '@/hooks/usePatientData';
 import { useAssessmentData } from '@/hooks/useAssessmentData';
 import AssessmentChart from '@/components/AssessmentChart';
@@ -16,7 +16,6 @@ const AssessmentContent: React.FC = () => {
     saveAssessmentData
   } = useAssessmentData({ patient: patientData });
 
-  const [activeTab, setActiveTab] = useState('vitals');
   const [transcript, setTranscript] = useState<string>('');
 
   useEffect(() => {
@@ -33,19 +32,13 @@ const AssessmentContent: React.FC = () => {
   const isLoading = patientLoading || assessmentLoading;
   const error = patientError || assessmentError;
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, tab: string) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      setActiveTab(tab);
-    }
-  };
-
   if (isLoading) {
     return <LoadingSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8" role="alert">
+      <div className="w-full px-4 py-8" role="alert">
         <div className="bg-destructive/10 border-l-4 border-destructive text-destructive p-4 rounded">
           <div className="flex items-center">
             <FiAlertCircle className="mr-2" size={24} aria-hidden="true" />
@@ -59,7 +52,7 @@ const AssessmentContent: React.FC = () => {
 
   if (!patientData) {
     return (
-      <div className="container mx-auto px-4 py-8" role="alert">
+      <div className="w-full px-4 py-8" role="alert">
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
           <h1 className="text-xl font-semibold mb-2">No Patient Data Available</h1>
           <p>We couldn&apos;t retrieve the patient data. This could be due to:</p>
@@ -75,63 +68,17 @@ const AssessmentContent: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded">
-        <div className="flex items-center">
-          <FiInfo className="mr-2" size={24} aria-hidden="true" />
-          <h2 className="text-lg font-semibold">How to use this tool</h2>
-        </div>
-        <p className="mt-2">
-          1. Review the patient&apos;s information and transcript.<br />
-          2. Edit the assessment data as needed.<br />
-          3. Click &quot;Save and Submit&quot; to update the patient&apos;s record.
-        </p>
-      </div>
-
-      <div className="mb-6 overflow-x-auto">
-        <nav className="flex space-x-2 md:space-x-4 min-w-max" role="tablist" aria-label="Assessment tabs">
-          {['vitals', 'medications', 'allergies', 'notes'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              onKeyDown={(e) => handleKeyDown(e, tab)}
-              role="tab"
-              aria-selected={activeTab === tab}
-              aria-controls={`${tab}-panel`}
-              tabIndex={activeTab === tab ? 0 : -1}
-              className={`px-3 py-2 text-sm md:text-base md:px-4 md:py-2 rounded-md transition-colors ${
-                activeTab === tab
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      <div className="bg-card text-card-foreground shadow-lg rounded-lg p-4 md:p-6">
-        <div
-          role="tabpanel"
-          id={`${activeTab}-panel`}
-          aria-labelledby={`${activeTab}-tab`}
-        >
-          {activeTab === 'vitals' && (
-            <AssessmentChart 
-              assessmentData={assessmentData}
-              patientData={patientData}
-              updateAssessmentValue={updateAssessmentValue}
-              saveAssessmentData={saveAssessmentData}
-              transcript={transcript}
-              loading={isLoading}
-              error={error}
-            />
-          )}
-          {activeTab === 'medications' && <p>Medications content here</p>}
-          {activeTab === 'allergies' && <p>Allergies content here</p>}
-          {activeTab === 'notes' && <p>Notes content here</p>}
-        </div>
+    <div className="w-full px-4 py-6">
+      <div className="bg-card text-card-foreground shadow-lg rounded-lg p-4 md:p-6 w-full">
+        <AssessmentChart 
+          assessmentData={assessmentData}
+          patientData={patientData}
+          updateAssessmentValue={updateAssessmentValue}
+          saveAssessmentData={saveAssessmentData}
+          transcript={transcript}
+          loading={isLoading}
+          error={error}
+        />
       </div>
 
       <button 
@@ -146,7 +93,7 @@ const AssessmentContent: React.FC = () => {
 };
 
 const LoadingSkeleton: React.FC = () => (
-  <div className="container mx-auto px-4 py-6 animate-pulse">
+  <div className="w-full px-4 py-6 animate-pulse">
     <div className="h-20 bg-gray-200 rounded mb-6"></div>
     <div className="h-10 bg-gray-200 rounded mb-6"></div>
     <div className="h-96 bg-gray-200 rounded"></div>
