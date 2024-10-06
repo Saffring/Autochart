@@ -1,147 +1,155 @@
+'use client';
+
 import React from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { AssessmentTable } from './AssessmentTable';
+import useAssessmentData, { AssessmentData } from './useAssessmentData';
 
-const AssessmentChart: React.FC = () => {
+// Mock data for demonstration
+const mockAssessmentData: AssessmentData[] = [
+  { assessment: 'Temperature', value: '37', history: ['37.2', '37.1', '37.3', '37.5', '37.0'] },
+  { assessment: 'Respiratory rate', value: '18', history: ['22', '20', '21', '19', '20'] },
+  { assessment: 'Heart Rate', value: '84', history: ['86', '85', '83', '82', '84'] },
+  { assessment: 'Blood Pressure', value: '120/80', history: ['118/78', '122/82', '120/80', '124/82', '118/76'] },
+  { assessment: 'Pain', value: 'Yes', history: ['Yes', 'Yes', 'No', 'Yes', 'No'] },
+];
+
+const mockHistoricalDates = [
+  'Mar 13, 2024 18:45 hrs',
+  'Mar 13, 2024 12:30 hrs',
+  'Mar 12, 2024 20:15 hrs',
+  'Mar 12, 2024 08:00 hrs',
+  'Mar 11, 2024 22:45 hrs',
+];
+
+export const AssessmentChart: React.FC = () => {
+  const {
+    assessmentData,
+    selectedRow,
+    setSelectedRow,
+    updateAssessmentValue,
+    saveAssessmentData,
+  } = useAssessmentData({ initialData: mockAssessmentData });
+
+  const handleSave = async () => {
+    // In a real application, you would send this data to your API
+    console.log('Saving data:', assessmentData);
+    await saveAssessmentData();
+  };
+
+  // Mock patient data
+  const patientData = {
+    patientName: "Jane Doe",
+    dob: "12 Aug 1985",
+    mrn: "#111111",
+    submittedBy: "Nurse Name",
+    dateTime: "mm/dd/yy hh:mm",
+    audioSrc: "/path-to-your-audio-file.mp3",
+    transcript: "Hi, this is Nurse making a detailed note on patient Jane Doe. It's May 30th, 2024, and it's approximately 8:00 AM. Ms. Doe was admitted on the 27th of May with severe abdominal pain. She described the pain as sharp and persistent, which prompted further investigation. Upon admission, her initial vitals were slightly concerning with elevated blood pressure and increased heart rate, but they have since stabilized. As of this morning..."
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Patient Listing &gt; Assessments &gt; View Chart &gt; Edit Chart</h1>
-        <Button>Save and Submit</Button>
-      </div>
+    <div className="flex flex-col h-screen bg-gray-100">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div>
+            <nav className="flex" aria-label="Breadcrumb">
+              <ol className="inline-flex items-center space-x-1 md:space-x-3">
+                <li className="inline-flex items-center">
+                  <a href="#" className="text-gray-700 hover:text-gray-900">Patient Listing</a>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
+                    <a href="#" className="ml-1 text-gray-700 hover:text-gray-900 md:ml-2">Assessments</a>
+                  </div>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
+                    <a href="#" className="ml-1 text-gray-700 hover:text-gray-900 md:ml-2">View Chart</a>
+                  </div>
+                </li>
+                <li aria-current="page">
+                  <div className="flex items-center">
+                    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
+                    <span className="ml-1 text-gray-500 md:ml-2 font-medium">Edit Chart</span>
+                  </div>
+                </li>
+              </ol>
+            </nav>
+          </div>
+          <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm">Save and Submit</Button>
+        </div>
+      </header>
 
-      <Card className="mb-4 p-4">
-        <Button variant="outline" className="mb-2">&lt; Back</Button>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <span className="font-bold">Patient Name:</span> Jane D
-          </div>
-          <div>
-            <span className="font-bold">DOB:</span> 12 Aug 1985
-          </div>
-          <div>
-            <span className="font-bold">MRN:</span> #111111
-          </div>
-          <div>
-            <span className="font-bold">Submitted By:</span> Nurse Name
-          </div>
-          <div>
-            <span className="font-bold">Date & Time:</span> mm/dd/yy hh:mm
+      <main className="flex-grow overflow-hidden p-4">
+        <div className="max-w-[1920px] mx-auto h-full flex flex-col">
+          <Card className="mb-4 p-4 shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+              <div className="lg:col-span-2">
+                <span className="font-semibold">Patient Name:</span> {patientData.patientName}
+              </div>
+              <div>
+                <span className="font-semibold">DOB:</span> {patientData.dob}
+              </div>
+              <div>
+                <span className="font-semibold">MRN:</span> {patientData.mrn}
+              </div>
+              <div className="lg:col-span-2 md:col-span-2">
+                <span className="font-semibold">Submitted By:</span> {patientData.submittedBy}
+              </div>
+              <div className="lg:col-span-3 md:col-span-2">
+                <span className="font-semibold">Date & Time:</span> {patientData.dateTime}
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex-grow grid grid-cols-1 lg:grid-cols-4 gap-6 overflow-hidden">
+            <div className="lg:col-span-1 flex flex-col space-y-4 overflow-y-auto">
+              <Card className="flex-shrink-0 shadow-md">
+                <div className="p-4 bg-gray-50 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">Recording</h2>
+                </div>
+                <div className="p-4">
+                  <audio controls className="w-full">
+                    <source src={patientData.audioSrc} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              </Card>
+
+              <Card className="flex-grow overflow-hidden shadow-md">
+                <div className="p-4 bg-gray-50 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">Transcript</h2>
+                </div>
+                <div className="p-4 overflow-y-auto h-full">
+                  <p className="text-sm text-gray-600">{patientData.transcript}</p>
+                </div>
+              </Card>
+            </div>
+
+            <div className="lg:col-span-3 overflow-hidden">
+              <Card className="h-full flex flex-col shadow-md">
+                <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-900">Edit History</h2>
+                  <span className="text-sm text-gray-500">#20123 Last Edited: Mar14, 2024 19:00 hrs</span>
+                </div>
+                <div className="flex-grow overflow-hidden">
+                  <AssessmentTable
+                    assessmentData={assessmentData}
+                    historicalDates={mockHistoricalDates}
+                    selectedRow={selectedRow}
+                    onRowSelect={setSelectedRow}
+                    onValueChange={updateAssessmentValue}
+                  />
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4">
-          <h2 className="text-xl font-bold mb-2">Recording</h2>
-          <div className="bg-gray-200 p-4 rounded-lg flex items-center">
-            <Button variant="outline" className="mr-2">▶</Button>
-            <div className="flex-grow h-2 bg-blue-300 rounded-full relative">
-              <div className="absolute left-0 top-0 h-full w-1/3 bg-blue-500 rounded-full"></div>
-            </div>
-            <span className="ml-2">02:10</span>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <h2 className="text-xl font-bold mb-2">Transcript</h2>
-          <div className="h-40 overflow-y-auto">
-            <p>
-              Hi, this is Nurse making a detailed note on patient John Doe in room 312. It&apos;s May 30th, 2024, and it&apos;s approximately 8:00 AM.
-              Mr. Doe was admitted on the 27th of May with severe abdominal pain. He described the pain as sharp and persistent, which prompted further investigation. Upon admission, his initial vitals were slightly concerning with elevated blood pressure and increased heart rate, but they have since stabilized. As of this morning...
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      <Card className="mt-4 p-4">
-        <h2 className="text-xl font-bold mb-2">Edit History</h2>
-        <p className="mb-2">#20123 Last Edited: Mar14, 2024 19:00 hrs</p>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Assessment</TableHead>
-              <TableHead>Finding</TableHead>
-              <TableHead>Mar 13, 2024 18:45 hrs</TableHead>
-              <TableHead>Mar 13, 2024 18:45 hrs</TableHead>
-              <TableHead>Mar 13, 2024 18:45 hrs</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>Temperature</TableCell>
-              <TableCell>37</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Respiratory rate</TableCell>
-              <TableCell>18</TableCell>
-              <TableCell className="bg-yellow-100">22</TableCell>
-              <TableCell className="bg-yellow-100">22</TableCell>
-              <TableCell className="bg-yellow-100">22</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Heart Rate</TableCell>
-              <TableCell>84</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Blood Pressure</TableCell>
-              <TableCell>120/80</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Pain</TableCell>
-              <TableCell>Yes</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell className="bg-yellow-100">No</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Pain Onset</TableCell>
-              <TableCell>Back Lower</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Radiating</TableCell>
-              <TableCell>Unknown</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Pain Rating</TableCell>
-              <TableCell>6/10</TableCell>
-              <TableCell className="bg-yellow-100">7/10</TableCell>
-              <TableCell className="bg-yellow-100">7/10</TableCell>
-              <TableCell className="bg-yellow-100">0/10</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Medication Given</TableCell>
-              <TableCell>Unknown</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Respiratory Upper</TableCell>
-              <TableCell>Clear</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Card>
+      </main>
     </div>
   );
 };
