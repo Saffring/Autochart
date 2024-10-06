@@ -17,7 +17,7 @@ export interface UseAssessmentDataProps {
 export const useAssessmentData = ({ patient, onSave }: UseAssessmentDataProps) => {
   const [assessmentData, setAssessmentData] = useState<AssessmentData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -69,6 +69,7 @@ export const useAssessmentData = ({ patient, onSave }: UseAssessmentDataProps) =
 
       setAssessmentData(patientAssessment);
       setLoading(false);
+      setError(undefined);
     } else {
       setError('Patient data is required');
       setLoading(false);
@@ -94,7 +95,11 @@ export const useAssessmentData = ({ patient, onSave }: UseAssessmentDataProps) =
 
   const saveAssessmentData = useCallback(async () => {
     if (onSave) {
-      await onSave(assessmentData);
+      try {
+        await onSave(assessmentData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while saving assessment data');
+      }
     }
   }, [assessmentData, onSave]);
 

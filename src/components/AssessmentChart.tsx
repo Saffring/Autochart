@@ -6,12 +6,19 @@ import { Card } from './ui/card';
 import { AssessmentTable } from './AssessmentTable';
 import { AssessmentData } from '@/hooks/useAssessmentData';
 import { Patient } from 'fhir/r4';
+import { FiSave, FiUser, FiCalendar, FiHash, FiMic, FiFileText, FiEdit3, FiAlertCircle, FiLoader } from 'react-icons/fi';
+import LoadingScreen from '@/components/LoadingScreen';
+import { useToast } from '@/components/ui/ToastProvider';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 interface AssessmentChartProps {
   assessmentData: AssessmentData[];
   patientData: Patient;
   updateAssessmentValue: (index: number, newValue: string) => void;
   saveAssessmentData: () => Promise<void>;
+  transcript: string;
+  loading?: boolean;
+  error?: string;
 }
 
 export const AssessmentChart: React.FC<AssessmentChartProps> = ({
@@ -19,76 +26,96 @@ export const AssessmentChart: React.FC<AssessmentChartProps> = ({
   patientData,
   updateAssessmentValue,
   saveAssessmentData,
+  transcript,
+  loading = false,
+  error,
 }) => {
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const { addToast } = useToast();
 
-  const handleSave = async () => {
-    await saveAssessmentData();
-    // You might want to add some feedback to the user here, like a toast notification
+  const handleSave = () => {
+    setShowConfirmDialog(true);
   };
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div>
-            <nav className="flex" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 md:space-x-3">
-                <li className="inline-flex items-center">
-                  <a href="#" className="text-gray-700 hover:text-gray-900">Patient Listing</a>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
-                    <a href="#" className="ml-1 text-gray-700 hover:text-gray-900 md:ml-2">Assessments</a>
-                  </div>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
-                    <a href="#" className="ml-1 text-gray-700 hover:text-gray-900 md:ml-2">View Chart</a>
-                  </div>
-                </li>
-                <li aria-current="page">
-                  <div className="flex items-center">
-                    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
-                    <span className="ml-1 text-gray-500 md:ml-2 font-medium">Edit Chart</span>
-                  </div>
-                </li>
-              </ol>
-            </nav>
+  const confirmSave = async () => {
+    setIsSaving(true);
+    try {
+      await saveAssessmentData();
+      addToast('Assessment data saved successfully', 'success');
+    } catch (error) {
+      addToast('Error saving assessment data. Please try again.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingScreen message="Loading assessment data..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8" role="alert">
+        <div className="bg-destructive/10 border-l-4 border-destructive text-destructive p-4 rounded">
+          <div className="flex items-center">
+            <FiAlertCircle className="mr-2" size={24} aria-hidden="true" />
+            <h1 className="text-xl font-semibold">Error Loading Assessment Data</h1>
           </div>
-          <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm">Save and Submit</Button>
+          <p className="mt-2">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full bg-background">
+      <header className="bg-card text-card-foreground border-b border-border sticky top-0 z-30 shadow-sm">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-xl md:text-2xl font-bold">Patient Assessment</h1>
+          <Button 
+            onClick={handleSave} 
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            disabled={isSaving}
+            aria-label={isSaving ? 'Saving assessment data' : 'Save and submit assessment data'}
+          >
+            {isSaving ? <FiLoader className="mr-2 animate-spin" /> : <FiSave className="mr-2" />}
+            <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save and Submit'}</span>
+            <span className="sm:hidden">Save</span>
+          </Button>
         </div>
       </header>
 
       <main className="flex-grow overflow-hidden p-4">
-        <div className="max-w-[1920px] mx-auto h-full flex flex-col">
-          <Card className="mb-4 p-4 shadow-md">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
-              <div className="lg:col-span-2">
-                <span className="font-semibold">Patient Name:</span> {patientData?.name?.[0]?.given?.join(' ')} {patientData?.name?.[0]?.family}
+        <div className="max-w-[1920px] mx-auto h-full flex flex-col space-y-4">
+          <Card className="p-4 md:p-6 shadow-md transition-all duration-300 hover:shadow-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
+              <div className="flex items-center">
+                <FiUser className="mr-2 text-primary" aria-hidden="true" />
+                <span className="font-semibold">Patient:</span> {patientData?.name?.[0]?.given?.join(' ')} {patientData?.name?.[0]?.family}
               </div>
-              <div>
+              <div className="flex items-center">
+                <FiCalendar className="mr-2 text-primary" aria-hidden="true" />
                 <span className="font-semibold">DOB:</span> {patientData?.birthDate}
               </div>
-              <div>
+              <div className="flex items-center">
+                <FiHash className="mr-2 text-primary" aria-hidden="true" />
                 <span className="font-semibold">MRN:</span> {patientData?.id}
               </div>
-              <div className="lg:col-span-2 md:col-span-2">
-                <span className="font-semibold">Submitted By:</span> {/* Add submitted by information if available */}
-              </div>
-              <div className="lg:col-span-3 md:col-span-2">
-                <span className="font-semibold">Date & Time:</span> {new Date().toLocaleString()}
+              <div className="flex items-center">
+                <FiEdit3 className="mr-2 text-primary" aria-hidden="true" />
+                <span className="font-semibold">Last Edited:</span> {new Date().toLocaleString()}
               </div>
             </div>
           </Card>
 
           <div className="flex-grow grid grid-cols-1 lg:grid-cols-4 gap-6 overflow-hidden">
             <div className="lg:col-span-1 flex flex-col space-y-4 overflow-y-auto">
-              <Card className="flex-shrink-0 shadow-md">
-                <div className="p-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Recording</h2>
+              <Card className="flex-shrink-0 shadow-md transition-all duration-300 hover:shadow-lg">
+                <div className="p-4 bg-muted border-b border-border flex items-center">
+                  <FiMic className="mr-2 text-primary" aria-hidden="true" />
+                  <h2 className="text-lg font-semibold">Recording</h2>
                 </div>
                 <div className="p-4">
                   <audio controls className="w-full">
@@ -98,27 +125,29 @@ export const AssessmentChart: React.FC<AssessmentChartProps> = ({
                 </div>
               </Card>
 
-              <Card className="flex-grow overflow-hidden shadow-md">
-                <div className="p-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Transcript</h2>
+              <Card className="flex-grow overflow-hidden shadow-md transition-all duration-300 hover:shadow-lg">
+                <div className="p-4 bg-muted border-b border-border flex items-center">
+                  <FiFileText className="mr-2 text-primary" aria-hidden="true" />
+                  <h2 className="text-lg font-semibold">Transcript</h2>
                 </div>
                 <div className="p-4 overflow-y-auto h-full">
-                  <p className="text-sm text-gray-600">Transcript will be displayed here.</p>
+                  <p className="text-sm text-muted-foreground">{transcript || 'No transcript available.'}</p>
                 </div>
               </Card>
             </div>
 
             <div className="lg:col-span-3 overflow-hidden">
-              <Card className="h-full flex flex-col shadow-md">
-                <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-900">Edit History</h2>
-                  <span className="text-sm text-gray-500">Last Edited: {new Date().toLocaleString()}</span>
+              <Card className="h-full flex flex-col shadow-md transition-all duration-300 hover:shadow-lg">
+                <div className="p-4 bg-muted border-b border-border flex justify-between items-center">
+                  <h2 className="text-lg font-semibold flex items-center">
+                    <FiEdit3 className="mr-2 text-primary" aria-hidden="true" />
+                    Edit History
+                  </h2>
                 </div>
                 <div className="flex-grow overflow-hidden">
                   <AssessmentTable
                     assessmentData={assessmentData}
                     updateAssessmentValue={updateAssessmentValue}
-                    saveAssessmentData={saveAssessmentData}
                     selectedRow={selectedRow}
                     setSelectedRow={setSelectedRow}
                   />
@@ -128,6 +157,14 @@ export const AssessmentChart: React.FC<AssessmentChartProps> = ({
           </div>
         </div>
       </main>
+
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={confirmSave}
+        title="Save Changes"
+        message="Are you sure you want to save the changes to this assessment?"
+      />
     </div>
   );
 };

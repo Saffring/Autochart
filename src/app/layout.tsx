@@ -1,22 +1,34 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import './globals.css'
+import { Inter } from 'next/font/google'
+import { ToastProvider } from '@/components/ui/ToastProvider'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: "Autochart",
-  description: "Helping Nurses with Charting",
-};
+export const metadata = {
+  title: 'AutoChart - Smart on FHIR App',
+  description: 'A modern Smart on FHIR app for efficient patient charting',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ToastProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow animate-fadeIn">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </ToastProvider>
+      </body>
     </html>
-  );
+  )
 }

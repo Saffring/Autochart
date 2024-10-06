@@ -3,9 +3,9 @@ import axios from 'axios';
 import { Patient } from 'fhir/r4';
 
 export const usePatientData = () => {
-  const [patientData, setPatientData] = useState<Patient | null>(null);
+  const [patientData, setPatientData] = useState<Patient | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [showBanner, setShowBanner] = useState(false);
   const fetchAttemptedRef = useRef(false);
 
@@ -14,7 +14,7 @@ export const usePatientData = () => {
     fetchAttemptedRef.current = true;
 
     setLoading(true);
-    setError(null);
+    setError(undefined);
     try {
       const accessToken = localStorage.getItem('access_token');
       const patientId = localStorage.getItem('patient');
@@ -44,7 +44,7 @@ export const usePatientData = () => {
     } catch (error) {
       console.error('Error fetching patient data:', error);
       setError(error instanceof Error ? error.message : 'An unknown error occurred');
-      setPatientData(null);
+      setPatientData(undefined);
     } finally {
       setLoading(false);
     }
