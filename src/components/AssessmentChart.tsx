@@ -70,13 +70,14 @@ export const AssessmentChart: React.FC<AssessmentChartProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <header className="bg-card text-card-foreground border-b border-border sticky top-0 z-30 shadow-sm">
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <div className="flex flex-col h-full -full bg-background py-12">
+      <header className="bg-card text-card-foreground border-b border-border sticky top-[84px] z-30  w-full">
+        <div className="w-full flex justify-between items-center py-4 px-0">
           <h1 className="text-xl md:text-2xl font-bold">Patient Assessment</h1>
-          <Button 
-            onClick={handleSave} 
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          <Button
+            onClick={handleSave}
+            className="text-primary-foreground hover:bg-primary/90"
+            style={{ background: "linear-gradient(to right, #6F46F1,#633DF3, #663DF3,#6940F1)", }}
             disabled={isSaving}
             aria-label={isSaving ? 'Saving assessment data' : 'Save and submit assessment data'}
           >
@@ -87,7 +88,8 @@ export const AssessmentChart: React.FC<AssessmentChartProps> = ({
         </div>
       </header>
 
-      <main className="flex-grow overflow-hidden p-4">
+
+      <main className="flex-grow overflow-hidden p-4 py-8">
         <div className="max-w-[1920px] mx-auto h-full flex flex-col space-y-4">
           <Card className="p-4 md:p-6 shadow-md transition-all duration-300 hover:shadow-lg">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
@@ -137,7 +139,7 @@ export const AssessmentChart: React.FC<AssessmentChartProps> = ({
             </div>
 
             <div className="lg:col-span-3 overflow-hidden">
-              <Card className="h-full flex flex-col shadow-md transition-all duration-300 hover:shadow-lg">
+              <Card className="h-full flex flex-col shadow-md transition-all duration-300 hover:shadow-lg" style={{ background: "linear-gradient(to right, #6F46F1,#633DF3, #663DF3,#6940F1)", }}>
                 <div className="p-4 bg-muted border-b border-border flex justify-between items-center">
                   <h2 className="text-lg font-semibold flex items-center">
                     <FiEdit3 className="mr-2 text-primary" aria-hidden="true" />

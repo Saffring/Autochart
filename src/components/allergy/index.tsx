@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface AllergiesProps {
-  allergies?: string[]; // You can adjust the type based on your actual data structure
+  allergies?: string[]; 
 }
 
 const Allergies: React.FC<AllergiesProps> = ({ allergies }) => {

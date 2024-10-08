@@ -19,9 +19,7 @@ const AssessmentContent: React.FC = () => {
   const [transcript, setTranscript] = useState<string>('');
 
   useEffect(() => {
-    // Simulating fetching transcript data
     const fetchTranscript = async () => {
-      // Replace this with actual API call in the future
       const mockTranscript = "This is a placeholder for the patient's transcript. In a real application, this would be fetched from an API or database.";
       setTranscript(mockTranscript);
     };
@@ -83,7 +81,7 @@ const AssessmentContent: React.FC = () => {
 
       <button 
         className="fixed bottom-6 right-6 bg-accent text-accent-foreground rounded-full p-3 md:p-4 shadow-lg hover:bg-accent/90 transition-colors z-10"
-        onClick={() => {/* Handle quick action */}}
+        onClick={() => {}}
         aria-label="Quick action"
       >
         <FiPlus size={24} aria-hidden="true" />

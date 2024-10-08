@@ -1,4 +1,3 @@
-// components/Navbar.tsx
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bell, User, Home, BarChart2, FileText, Users } from 'lucide-react';

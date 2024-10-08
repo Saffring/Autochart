@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bell, User, Home, BarChart2, FileText, Users } from 'lucide-react';
 

@@ -32,13 +32,10 @@ export const usePatientData = () => {
           'Accept': 'application/json',
         },
       });
-
       console.log('Patient data response:', response.data);
-
       if (!response.data || Object.keys(response.data).length === 0) {
         throw new Error('Received empty patient data from the server');
       }
-
       setPatientData(response.data);
       setShowBanner(localStorage.getItem("need_patient_banner") === "true");
     } catch (error) {

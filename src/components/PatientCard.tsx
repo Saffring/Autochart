@@ -1,4 +1,3 @@
-// components/PatientCard.tsx
 import React from 'react';
 import { Patient } from 'fhir/r4';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
