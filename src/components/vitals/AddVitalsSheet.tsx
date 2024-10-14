@@ -92,45 +92,63 @@ const AddVitalsSheet: React.FC<AddVitalsSheetProps> = ({ onAddVitals }) => {
     if (selectedVital && selectedVital.normalRange) {
       if (selectedVital.inputType === 'dual') {
         const [systolic, diastolic] = vital.value.split('/').map(Number);
-        return systolic >= selectedVital.normalRange.systolic.min && 
-               systolic <= selectedVital.normalRange.systolic.max &&
-               diastolic >= selectedVital.normalRange.diastolic.min && 
-               diastolic <= selectedVital.normalRange.diastolic.max;
+        const systolicRange = selectedVital.normalRange?.systolic;
+        const diastolicRange = selectedVital.normalRange?.diastolic;
+        
+        // Ensure both systolic and diastolic ranges are defined before accessing min and max
+        if (systolicRange && diastolicRange) {
+          return systolic >= (systolicRange.min ?? Number.MIN_SAFE_INTEGER) &&
+                 systolic <= (systolicRange.max ?? Number.MAX_SAFE_INTEGER) &&
+                 diastolic >= (diastolicRange.min ?? Number.MIN_SAFE_INTEGER) &&
+                 diastolic <= (diastolicRange.max ?? Number.MAX_SAFE_INTEGER);
+        }
       } else {
         const value = parseFloat(vital.value);
-        return value >= selectedVital.normalRange.min && value <= selectedVital.normalRange.max;
+        // Ensure normalRange min and max are defined
+        return value >= (selectedVital.normalRange?.min ?? Number.MIN_SAFE_INTEGER) &&
+               value <= (selectedVital.normalRange?.max ?? Number.MAX_SAFE_INTEGER);
       }
     }
     return null;
   };
-
+  
   const getNormalRangeMessage = (vital: Vital) => {
     const selectedVital = vitalOptions.find(v => v.code === vital.code);
-    if (!selectedVital) return '';
-
+    if (!selectedVital || !selectedVital.normalRange) return '';
+  
     if (selectedVital.inputType === 'dual') {
       const [systolic, diastolic] = vital.value.split('/').map(Number);
-      const systolicRange = `${selectedVital.normalRange.systolic.min} - ${selectedVital.normalRange.systolic.max}`;
-      const diastolicRange = `${selectedVital.normalRange.diastolic.min} - ${selectedVital.normalRange.diastolic.max}`;
-      
-      if (systolic < selectedVital.normalRange.systolic.min || diastolic < selectedVital.normalRange.diastolic.min) {
-        return `Value is below the normal range of ${systolicRange}/${diastolicRange} ${selectedVital.unit}`;
+      const systolicRange = selectedVital.normalRange?.systolic;
+      const diastolicRange = selectedVital.normalRange?.diastolic;
+  
+      if (systolicRange && diastolicRange) {
+        const systolicRangeStr = `${systolicRange.min ?? '?'} - ${systolicRange.max ?? '?'}`;
+        const diastolicRangeStr = `${diastolicRange.min ?? '?'} - ${diastolicRange.max ?? '?'}`;
+  
+        if (systolic < (systolicRange.min ?? Number.MIN_SAFE_INTEGER) || diastolic < (diastolicRange.min ?? Number.MIN_SAFE_INTEGER)) {
+          return `Value is below the normal range of ${systolicRangeStr}/${diastolicRangeStr} ${selectedVital.unit}`;
+        }
+        if (systolic > (systolicRange.max ?? Number.MAX_SAFE_INTEGER) || diastolic > (diastolicRange.max ?? Number.MAX_SAFE_INTEGER)) {
+          return `Value is above the normal range of ${systolicRangeStr}/${diastolicRangeStr} ${selectedVital.unit}`;
+        }
+        return `Value is within the normal range of ${systolicRangeStr}/${diastolicRangeStr} ${selectedVital.unit}`;
       }
-      if (systolic > selectedVital.normalRange.systolic.max || diastolic > selectedVital.normalRange.diastolic.max) {
-        return `Value is above the normal range of ${systolicRange}/${diastolicRange} ${selectedVital.unit}`;
-      }
-      return `Value is within the normal range of ${systolicRange}/${diastolicRange} ${selectedVital.unit}`;
     } else {
       const value = parseFloat(vital.value);
-      if (value < selectedVital.normalRange.min) {
-        return `Value is below the normal range of ${selectedVital.normalRange.min} - ${selectedVital.normalRange.max} ${selectedVital.unit}`;
+      const min = selectedVital.normalRange?.min ?? Number.MIN_SAFE_INTEGER;
+      const max = selectedVital.normalRange?.max ?? Number.MAX_SAFE_INTEGER;
+  
+      if (value < min) {
+        return `Value is below the normal range of ${min} - ${max} ${selectedVital.unit}`;
       }
-      if (value > selectedVital.normalRange.max) {
-        return `Value is above the normal range of ${selectedVital.normalRange.min} - ${selectedVital.normalRange.max} ${selectedVital.unit}`;
+      if (value > max) {
+        return `Value is above the normal range of ${min} - ${max} ${selectedVital.unit}`;
       }
-      return `Value is within the normal range of ${selectedVital.normalRange.min} - ${selectedVital.normalRange.max} ${selectedVital.unit}`;
+      return `Value is within the normal range of ${min} - ${max} ${selectedVital.unit}`;
     }
+    return '';
   };
+  
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

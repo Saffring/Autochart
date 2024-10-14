@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 
 export const useSmartFhirCallbackHandler = () => {
@@ -28,23 +28,28 @@ export const useSmartFhirCallbackHandler = () => {
           },
         }
       );
-
       Object.entries(response.data).forEach(([key, value]) => {
         localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
       });
 
       setDebugInfo(prevDebug => `${prevDebug}\n\nToken Exchange Success:\n${JSON.stringify(response.data, null, 2)}`);
       setLoading(false);
-
       router.push('/home');
-    } catch (error) {
-      console.error('Token exchange error:', error);
-      if (axios.isAxiosError(error) && error.response) {
-        setError(`Failed to exchange code for token: ${error.response.status} ${error.response.statusText}`);
-        setDebugInfo(prevDebug => `${prevDebug}\n\nError Response:\n${JSON.stringify(error.response.data, null, 2)}`);
+    } catch (err) {
+      console.error('Token exchange error:', err);
+      if (err instanceof AxiosError) {
+        if (err.response) {
+          setError(`Failed to exchange code for token: ${err.response.status} ${err.response.statusText}`);
+          setDebugInfo(prevDebug => `${prevDebug}\n\nError Response:\n${JSON.stringify(err?.response?.data, null, 2)}`);
+        } else {
+          setError('Failed to exchange code for token: No response received.');
+        }
+      } else if (err instanceof Error) {
+        setError(`Failed to exchange code for token: ${err.message}`);
       } else {
-        setError(`Failed to exchange code for token: ${error.message}`);
+        setError('An unknown error occurred.');
       }
+      
       setLoading(false);
     }
   }, [router]);

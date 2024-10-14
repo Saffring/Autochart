@@ -117,6 +117,48 @@ const EnhancedAudioVisualizer: React.FC<EnhancedAudioVisualizerProps> = ({ isRec
     );
 };
 
+interface TranscriptionCardProps {
+    service: TranscriptionService;
+    result: TranscriptionResult;
+    onCopy: (text: string) => void;
+}
+
+
+const TranscriptionCard: React.FC<TranscriptionCardProps> = ({ service, result, onCopy }) => (
+    <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out rounded-lg overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4">
+            <div className="flex justify-between items-center">
+                <CardTitle className="text-white text-xl font-bold">{service}</CardTitle>
+                <span className="bg-white text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+                    {result.executionTime}s
+                </span>
+            </div>
+        </CardHeader>
+        <CardContent className="p-4">
+            <div className="relative h-48 bg-gray-50 rounded-lg overflow-hidden">
+                {result.isLoading ? (
+                    <div className="flex justify-center items-center h-full">
+                        <Loader className="w-8 h-8 animate-spin text-blue-500" />
+                    </div>
+                ) : (
+                    <div className="h-full p-3 overflow-auto">
+                        <p className="text-gray-700 text-sm leading-relaxed">
+                            {result.text || "Transcription will appear here"}
+                        </p>
+                    </div>
+                )}
+                <button
+                    onClick={() => onCopy(result.text || "")}
+                    className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors duration-200"
+                    aria-label="Copy text"
+                >
+                    <Clipboard className="w-4 h-4 text-blue-600" />
+                </button>
+            </div>
+        </CardContent>
+    </Card>
+);
+
 export default function Component() {
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [recordingDuration, setRecordingDuration] = useState<number>(0);
@@ -285,7 +327,7 @@ export default function Component() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-white to-gray-200 text-gray-800 p-4 mt-24">
-            <div className="container mx-auto max-w-full">
+            <div className="container mx-auto ">
                 <h1 className="text-4xl font-bold mb-6 text-center text-blue-900">Healthcare AI Transcription Comparison</h1>
                 <div className="mb-6">
                     <EnhancedAudioVisualizer isRecording={isRecording} recordingDuration={recordingDuration} />
@@ -302,43 +344,14 @@ export default function Component() {
 
                     <div className="text-2xl font-mono text-blue-900">{recordingDuration}s</div>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {(Object.keys(results) as TranscriptionService[]).map((service) => (
-                        <Card
+                        <TranscriptionCard
                             key={service}
-                            className="border border-gray-200 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out rounded-lg"
-                        >
-                            <CardHeader className="bg-gradient-to-r from-blue-300 to-blue-500 p-6 rounded-t-lg flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <span className="text-white font-bold text-xl flex items-center gap-2">
-                                        {service}
-                                    </span>
-                                </div>
-                                <div className="text-sm font-normal bg-white text-blue-800 py-1 px-4 rounded-full shadow-lg hover:bg-blue-200 transition duration-300 ease-in-out">
-                                    {results[service].executionTime}s
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-6 relative">
-                                <div className="h-48 overflow-auto mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50 shadow-inner hover:shadow-md transition-all duration-300 ease-in-out">
-                                    {results[service].isLoading ? (
-                                        <div className="flex justify-center items-center h-full">
-                                            <Loader className="w-8 h-8 animate-spin text-blue-500" />
-                                        </div>
-                                    ) : (
-                                        <p className="text-gray-600 text-lg font-medium">
-                                            {results[service].text || "Transcription will appear here"}
-                                        </p>
-                                    )}
-                                </div>
-                                <button
-                                    onClick={() => handleCopyText(results[service].text || "Transcription will appear here")}
-                                    className="absolute top-4 right-4 text-blue-700 hover:text-blue-900 transition-colors duration-200"
-                                    aria-label="Copy text"
-                                >
-                                    <Clipboard className="w-6 h-6" />
-                                </button>
-                            </CardContent>
-                        </Card>
+                            service={service}
+                            result={results[service]}
+                            onCopy={handleCopyText}
+                        />
                     ))}
                 </div>
             </div>

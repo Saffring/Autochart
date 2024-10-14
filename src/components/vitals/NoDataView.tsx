@@ -1,8 +1,12 @@
+type Vital = any;
 import React from 'react';
 import { motion } from 'framer-motion';
 import AddVitalsSheet from './AddVitalsSheet';
 
-const NoDataView = ({ onAddVitals }: { onAddVitals: Function }) => (
+// Define the type for the onAddVitals function
+type OnAddVitals = (vitals: Vital[]) => Promise<void>;
+
+const NoDataView = ({ onAddVitals }: { onAddVitals: OnAddVitals }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}

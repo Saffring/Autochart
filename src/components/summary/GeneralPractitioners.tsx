@@ -18,20 +18,19 @@ const GeneralPractitioners: React.FC<GeneralPractitionersProps> = ({ practitione
     <Table>
       <TableHeader>
         <TableRow>
-        <TableHead className="font-medium text-gray-500">Id</TableHead>
+          <TableHead className="font-medium text-gray-500">Id</TableHead>
           <TableHead className="font-medium text-gray-500">Name</TableHead>
           <TableHead className="font-medium text-gray-500">Specialty</TableHead>
-          <TableHead className="font-medium text-gray-500">Reference</TableHead>
-
         </TableRow>
       </TableHeader>
       <TableBody>
         {practitioners.map((gp, index) => (
           <TableRow key={index}>
             <TableCell>{gp?.id || ""}</TableCell>
-            <TableCell>{gp?.display || ""}</TableCell>
-            <TableCell>General Practitioner</TableCell>
-            <TableCell>{gp?.reference || ""}</TableCell>
+            <TableCell>{gp?.practitioner?.display || "Unknown Name"}</TableCell>
+            <TableCell>
+              {gp?.specialty?.[0]?.coding?.[0]?.display || "General Practitioner"}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

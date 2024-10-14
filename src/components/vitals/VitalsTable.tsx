@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"; // Ensure correct Tooltip import
 import { Button } from "@/components/ui/button";
 
 interface VitalSign {
@@ -95,8 +95,11 @@ const VitalsTable: React.FC<VitalsTableProps> = ({ filteredVitals }) => {
                       {new Date(vital.effectiveDateTime).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Tooltip content={`Details about ${vital.code?.text}`}>
-                        {vital.code?.text}
+                      <Tooltip>
+                        <TooltipTrigger>{vital.code?.text}</TooltipTrigger>
+                        <TooltipContent>
+                          <p>Details about {vital.code?.text}</p>
+                        </TooltipContent>
                       </Tooltip>
                     </TableCell>
                     <TableCell>
